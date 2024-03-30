@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<link rel="alternate" type="application/atom+xml" href="/rss.xml" />
+	<meta charset="utf-8" />
+	<link rel="icon" href="./favicon.png" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	
+		<link href="./_app/immutable/assets/0.B9cbKNOA.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/3.CpRxHO2S.css" rel="stylesheet">
+		<link rel="modulepreload" href="./_app/immutable/entry/start.oA2CQoPJ.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/entry.BRiR9Mml.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/scheduler.Dma3tH61.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.B5x2dZNA.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/control.CYgJF_JY.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/app.CSLeeBM_.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/preload-helper.D6kgxu3v.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.JGKGwG06.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/0.CLjnhqTG.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/config.CAbVTQpq.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/spread.CgU5AtxT.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/Icon.BIyFMAqA.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/each.D6YF6ztN.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/3.DWqORvBy.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/utils.D2VCOvFc.js"><title>YOLOv4 in Rust using OpenCV's Deep Neural Networks</title><!-- HEAD_svelte-ylbs26_START --><meta property="og:type" content="article"><meta property="og:title" content="YOLOv4 in Rust using OpenCV's Deep Neural Networks"><!-- HEAD_svelte-ylbs26_END -->
+	<script type="module">
+		const theme = localStorage.getItem('color-scheme')
+
+		theme
+			? document.documentElement.setAttribute('color-scheme', theme)
+			: localStorage.setItem('color-scheme', 'dark')
+	</script>
+</head>
+
+<body data-sveltekit-preload-data="hover">
+	<div style="display: contents">  <div class="layout svelte-1sq3us8"> <nav class="svelte-scea26"> <a href="/" class="title svelte-scea26"><b>Borys Tyran</b></a>  <ul class="links svelte-scea26" data-svelte-h="svelte-oh7uu5"><li><a href="/about" class="svelte-scea26">About</a></li> <li><a href="/contact" class="svelte-scea26">Contact</a></li> <li><a href="/rss.xml" target="_blank" class="svelte-scea26">RSS</a></li></ul>  <button aria-label="Toggle theme" class="svelte-114mtci"><div class="svelte-114mtci"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-moon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg> <span data-svelte-h="svelte-397x2m">Dark</span></div> </button> </nav> <main class="svelte-1sq3us8"> <div class="transition svelte-vcdv4c">  <article class="svelte-6vjm4a"> <hgroup><h1 class="svelte-6vjm4a">YOLOv4 in Rust using OpenCV's Deep Neural Networks</h1> <p class="svelte-6vjm4a">Published at Mar 30, 2024</p></hgroup>  <div class="tags svelte-6vjm4a"><span class="surface-4 svelte-6vjm4a">#Object detection</span><span class="surface-4 svelte-6vjm4a">#YOLO</span><span class="surface-4 svelte-6vjm4a">#Rust</span><span class="surface-4 svelte-6vjm4a">#OpenCV</span></div>  <div class="prose"><p data-svelte-h="svelte-53lfr7">Recently I got into CNN based object detectors in computer vision for my master’s thesis and I was wondering whenever I could
+work on this project in Rust. Here are my findings on how to load YOLOv4 object detector into a Rust program using OpenCV library.</p> <br> <h3 id="yolo-as-object-detector" data-svelte-h="svelte-1cu28tn">YOLO as Object Detector</h3> <br> <p data-svelte-h="svelte-ixwi2w">For object detection model I went for the popular YOLO detectors. Choosing a particular version might not be as easy as just
+choosing the one with highest version number. After version v3, the project was abandoned by the original author and since the name
+name wasn’t trademarked, different interested parties have appropriated the title. This is topic however, is worthy of a separate article.</p> <br> <p data-svelte-h="svelte-fvaoep">I have gone for the YOLOv4 since it was the last one created on the darknet framework. The original darknet repository has
+been abandoned but a forked and currently maintained version can be found <a href="https://github.com/hank-ai/darknet" rel="nofollow">here</a>.</p> <br> <p data-svelte-h="svelte-lxu8e0">To perform detection with YOLO model you need a configuration file which describes the architecture of the model. You also need a
+.weights file which are crucial for the network to performs predictions based on input images.</p> <br> <p data-svelte-h="svelte-wiv8y8">You can find there great tutorials on how to train your own YOLO model. For purpose of this tutorial, I will use pre-trained
+MS-COCO weights and the default yolov4-tiny.cfg (both can be found in darknet repository).</p> <br> <ul data-svelte-h="svelte-hlh6ag"><li><a href="https://github.com/hank-ai/darknet/blob/master/cfg/yolov4-tiny.cfg" rel="nofollow">yolov4-tiny.cfg</a></li> <li><a href="https://github.com/hank-ai/darknet/issues/21#issuecomment-1807480542" rel="nofollow">yolov4-tiny.weights</a><br> <br></li></ul> <h3 id="load-yolo" data-svelte-h="svelte-fbomwj">Load YOLO</h3> <br> <p data-svelte-h="svelte-1hzjf4f">To load the model I will use the OpenCV library and it’s deep neural networks (dnn) module. Since it’s written in C++, Rust library
+with bindings is needed. Fortunely for us, there is actively maintained project called <a href="https://github.com/twistedfall/opencv-rust" rel="nofollow">opencv-rust</a>.
+I recommend going through the repository readme on installation and common trouble shooting in case of errors.</p> <br> <p data-svelte-h="svelte-144gnsw">With that out of the way, we can jump straight to code. Do a quick <code>cargo init</code> and put both cfg <code>yolov4-tiny.cfg</code> and <code>yolov4-tiny.weights</code>
+inside your project’s directory. Open <code>src/main.rs</code> in your favourite editor and let’s go.</p> <br> <p data-svelte-h="svelte-1wqwtgb">First we need to import our OpenCV library. From CLI you can do <code>cargo add opencv</code>. Also worth adding <code>cargo add anyhow</code> to handle results easier and
+<code>cargo add itertools</code>.
+The authors have broken up the lib into modules so we need to point at the ones
+we need. Mainly dnn but also core for some OpenCV specific types etc. Then in main we can load up
+the YOLO using dnn’s read_net function i.e:</p> <!-- HTML_TAG_START --><pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4" tabindex="0"><code><span class="line"><span style="color:#569CD6">use</span><span style="color:#4EC9B0"> anyhow</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Result</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">use</span><span style="color:#4EC9B0"> itertools</span><span style="color:#D4D4D4">::izip</span></span>
+<span class="line"><span style="color:#569CD6">use</span><span style="color:#4EC9B0"> opencv</span><span style="color:#D4D4D4">::&#123;core, dnn, highgui, imgcodecs, imgproc, </span><span style="color:#4EC9B0">prelude</span><span style="color:#D4D4D4">::*&#125;;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#569CD6">fn</span><span style="color:#DCDCAA"> main</span><span style="color:#D4D4D4">() -> </span><span style="color:#4EC9B0">Result</span><span style="color:#D4D4D4">&#x3C;()> &#123;</span></span>
+<span class="line"><span style="color:#6A9955">    // Setup model based on YOLOv4 config and weights</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> config</span><span style="color:#D4D4D4"> = </span><span style="color:#CE9178">"yolov4-tiny.cfg"</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> weights</span><span style="color:#D4D4D4"> = </span><span style="color:#CE9178">"yolov4-tiny.weights"</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> net</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">dnn</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">read_net</span><span style="color:#D4D4D4">(</span><span style="color:#9CDCFE">weights</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">config</span><span style="color:#D4D4D4">, </span><span style="color:#CE9178">"Darknet"</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> model</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">dnn</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">DetectionModel</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">new_1</span><span style="color:#D4D4D4">(&#x26;</span><span style="color:#9CDCFE">net</span><span style="color:#D4D4D4">)?;</span></span></code><button class="copy" data-code="use anyhow::Result;
+use itertools::izip
+use opencv::&#123;core, dnn, highgui, imgcodecs, imgproc, prelude::*&#125;;
+
+fn main() -> Result<()> &#123;
+    // Setup model based on YOLOv4 config and weights
+    let config = &#x22;yolov4-tiny.cfg&#x22;;
+    let weights = &#x22;yolov4-tiny.weights&#x22;;
+    let net = dnn::read_net(weights, config, &#x22;Darknet&#x22;)?;
+    let mut model = dnn::DetectionModel::new_1(&#x26;net)?;" onclick="
+          navigator.clipboard.writeText(this.dataset.code);
+          this.classList.add(&#x27;copied&#x27;);
+          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 3000)
+        "><span class="ready"></span><span class="success"></span></button></pre><!-- HTML_TAG_END --> <p data-svelte-h="svelte-1s8yz4m">Now the model has been marked as mutable because we will need to specify some parameters that are required for prediction.</p> <!-- HTML_TAG_START --><pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4" tabindex="0"><code><span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> scale</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">f64</span><span style="color:#D4D4D4"> = </span><span style="color:#B5CEA8">1.0</span><span style="color:#D4D4D4"> / </span><span style="color:#B5CEA8">255.0</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> size</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Size</span><span style="color:#D4D4D4"> &#123;</span></span>
+<span class="line"><span style="color:#9CDCFE">        width</span><span style="color:#D4D4D4">: </span><span style="color:#B5CEA8">416</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#9CDCFE">        height</span><span style="color:#D4D4D4">: </span><span style="color:#B5CEA8">416</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#D4D4D4">    &#125;;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> mean</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Scalar</span><span style="color:#D4D4D4"> &#123;</span></span>
+<span class="line"><span style="color:#B5CEA8">        0</span><span style="color:#D4D4D4">: [</span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">], </span><span style="color:#6A9955">// Generally for YOLO</span></span>
+<span class="line"><span style="color:#D4D4D4">    &#125;;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> swap_rb</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">bool</span><span style="color:#D4D4D4"> = </span><span style="color:#569CD6">true</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> crop</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">bool</span><span style="color:#D4D4D4"> = </span><span style="color:#569CD6">false</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#9CDCFE">    model</span><span style="color:#D4D4D4">.</span><span style="color:#DCDCAA">set_input_params</span><span style="color:#D4D4D4">(</span><span style="color:#9CDCFE">scale</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">size</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">mean</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">swap_rb</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">crop</span><span style="color:#D4D4D4">)?;</span></span></code><button class="copy" data-code="    let scale: f64 = 1.0 / 255.0;
+    let size = core::Size &#123;
+        width: 416,
+        height: 416,
+    &#125;;
+    let mean = core::Scalar &#123;
+        0: [0.0, 0.0, 0.0, 0.0], // Generally for YOLO
+    &#125;;
+    let swap_rb: bool = true;
+    let crop: bool = false;
+    model.set_input_params(scale, size, mean, swap_rb, crop)?;" onclick="
+          navigator.clipboard.writeText(this.dataset.code);
+          this.classList.add(&#x27;copied&#x27;);
+          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 3000)
+        "><span class="ready"></span><span class="success"></span></button></pre><!-- HTML_TAG_END --> <p data-svelte-h="svelte-1tq6337">The model is now ready to perform prediction. Quick note: by default, the model will do inference(prediction) using CPU.
+To use GPU you would need to set the backend and target parameter in model similarly to those above.</p> <p data-svelte-h="svelte-1q1e0rw">To store detections we need OpenCV specific types.</p> <!-- HTML_TAG_START --><pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4" tabindex="0"><code><span class="line"><span style="color:#6A9955">    // Vecs to store detections</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> class_ids</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Vector</span><span style="color:#D4D4D4">::&#x3C;</span><span style="color:#4EC9B0">i32</span><span style="color:#D4D4D4">>::</span><span style="color:#DCDCAA">new</span><span style="color:#D4D4D4">();</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> confidences</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Vector</span><span style="color:#D4D4D4">::&#x3C;</span><span style="color:#4EC9B0">f32</span><span style="color:#D4D4D4">>::</span><span style="color:#DCDCAA">new</span><span style="color:#D4D4D4">();</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> boxes</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Vector</span><span style="color:#D4D4D4">::&#x3C;</span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Rect</span><span style="color:#D4D4D4">>::</span><span style="color:#DCDCAA">new</span><span style="color:#D4D4D4">();    </span></span></code><button class="copy" data-code="    // Vecs to store detections
+    let mut class_ids = core::Vector::<i32>::new();
+    let mut confidences = core::Vector::<f32>::new();
+    let mut boxes = core::Vector::<core::Rect>::new();    " onclick="
+          navigator.clipboard.writeText(this.dataset.code);
+          this.classList.add(&#x27;copied&#x27;);
+          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 3000)
+        "><span class="ready"></span><span class="success"></span></button></pre><!-- HTML_TAG_END --> <p data-svelte-h="svelte-xkrqye">Now we are ready to perform detections! Let’s load an image as the input to YOLO the object detector and perform detections.
+I’ll take this standard picture of dog as an example.</p> <img src="post-01-img01.jpg" alt="image_of_dog" loading="lazy"> <!-- HTML_TAG_START --><pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4" tabindex="0"><code><span class="line"><span style="color:#6A9955">    // Open img</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> img_file</span><span style="color:#D4D4D4"> = </span><span style="color:#CE9178">"img.jpg"</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> img</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">imgcodecs</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">imread_def</span><span style="color:#D4D4D4">(</span><span style="color:#9CDCFE">img_file</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A9955">    // Perform detections</span></span>
+<span class="line"><span style="color:#9CDCFE">    model</span><span style="color:#D4D4D4">.</span><span style="color:#DCDCAA">detect_def</span><span style="color:#D4D4D4">(&#x26;</span><span style="color:#9CDCFE">img</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#569CD6">mut</span><span style="color:#9CDCFE"> class_ids</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#569CD6">mut</span><span style="color:#9CDCFE"> confidences</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#569CD6">mut</span><span style="color:#9CDCFE"> boxes</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A9955">    // Put bounding boxes on the img</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> color</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Scalar</span><span style="color:#D4D4D4"> &#123;</span></span>
+<span class="line"><span style="color:#B5CEA8">        0</span><span style="color:#D4D4D4">: [</span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">140.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">255.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">], </span><span style="color:#6A9955">// Orange</span></span>
+<span class="line"><span style="color:#D4D4D4">    &#125;;</span></span>
+<span class="line"><span style="color:#C586C0">    for</span><span style="color:#D4D4D4"> (</span><span style="color:#9CDCFE">_cid</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">_cf</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">b</span><span style="color:#D4D4D4">) </span><span style="color:#569CD6">in</span><span style="color:#DCDCAA"> izip!</span><span style="color:#D4D4D4">(&#x26;</span><span style="color:#9CDCFE">class_ids</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#9CDCFE">confidences</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#9CDCFE">boxes</span><span style="color:#D4D4D4">) &#123;</span></span>
+<span class="line"><span style="color:#4EC9B0">        imgproc</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">rectangle_def</span><span style="color:#D4D4D4">(&#x26;</span><span style="color:#569CD6">mut</span><span style="color:#9CDCFE"> img</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">b</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">color</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"><span style="color:#D4D4D4">    &#125;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A9955">    // Display in a GUI window</span></span>
+<span class="line"><span style="color:#4EC9B0">    highgui</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">named_window</span><span style="color:#D4D4D4">(</span><span style="color:#CE9178">"YOLOv4"</span><span style="color:#D4D4D4">, </span><span style="color:#4EC9B0">highgui</span><span style="color:#D4D4D4">::WINDOW_FULLSCREEN)?;</span></span>
+<span class="line"><span style="color:#4EC9B0">    highgui</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">imshow</span><span style="color:#D4D4D4">(</span><span style="color:#CE9178">"YOLOv4"</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#9CDCFE">img</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"><span style="color:#4EC9B0">    highgui</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">wait_key_def</span><span style="color:#D4D4D4">()?;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#4EC9B0">    Ok</span><span style="color:#D4D4D4">(())</span></span>
+<span class="line"><span style="color:#D4D4D4">&#125;</span></span></code><button class="copy" data-code="    // Open img
+    let img_file = &#x22;img.jpg&#x22;;
+    let mut img = imgcodecs::imread_def(img_file)?;
+
+    // Perform detections
+    model.detect_def(&#x26;img, &#x26;mut class_ids, &#x26;mut confidences, &#x26;mut boxes)?;
+
+    // Put bounding boxes on the img
+    let color = core::Scalar &#123;
+        0: [0.0, 140.0, 255.0, 0.0], // Orange
+    &#125;;
+    for (_cid, _cf, b) in izip!(&#x26;class_ids, &#x26;confidences, &#x26;boxes) &#123;
+        imgproc::rectangle_def(&#x26;mut img, b, color)?;
+    &#125;
+
+    // Display in a GUI window
+    highgui::named_window(&#x22;YOLOv4&#x22;, highgui::WINDOW_FULLSCREEN)?;
+    highgui::imshow(&#x22;YOLOv4&#x22;, &#x26;img)?;
+    highgui::wait_key_def()?;
+
+    Ok(())
+&#125;" onclick="
+          navigator.clipboard.writeText(this.dataset.code);
+          this.classList.add(&#x27;copied&#x27;);
+          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 3000)
+        "><span class="ready"></span><span class="success"></span></button></pre><!-- HTML_TAG_END --> <p>This should create a GUI window with the input image and bounding boxes acquired from running the model, drawn on it.
+<img src="post-01-img02.png" alt="image_of_dog" loading="lazy"></p> <p data-svelte-h="svelte-v3jdc9">The weights and configuration that we have used here i.e yolov4-tiny.cfg and it’s default weights, have been trained on MS-COCO
+and the 80 classes (object names). As you might have noticed, I have omitted displaying class id to make this easier and quicker.
+For further implementation, if you would like to continue with MS-COCO, you would need to load the <a href="https://github.com/hank-ai/darknet/blob/master/cfg/coco.names" rel="nofollow">names of classess</a>
+and match the class id with it’s respective counterpard in the file. From that you would get matching id to dog, car etc.
+Additionally, you could also display the confidence in detection scoure, i.e how sure the network is in 0-100% that the object detected
+is indeed the one it predicts.</p> <p data-svelte-h="svelte-u9nvbf">Now that model is loaded, true fun can begin and you can build on top of that.</p> <h3 id="full-code" data-svelte-h="svelte-131vqvd">Full Code</h3> <p data-svelte-h="svelte-8wufi7"><a href="https://github.com/bortyr/yolo-rust-tutorial" rel="nofollow">https://github.com/bortyr/yolo-rust-tutorial</a></p> <!-- HTML_TAG_START --><pre class="shiki dark-plus" style="background-color:#1E1E1E;color:#D4D4D4" tabindex="0"><code><span class="line"><span style="color:#569CD6">use</span><span style="color:#4EC9B0"> anyhow</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Result</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">use</span><span style="color:#4EC9B0"> itertools</span><span style="color:#D4D4D4">::izip;</span></span>
+<span class="line"><span style="color:#569CD6">use</span><span style="color:#4EC9B0"> opencv</span><span style="color:#D4D4D4">::&#123;core, dnn, highgui, imgcodecs, imgproc, </span><span style="color:#4EC9B0">prelude</span><span style="color:#D4D4D4">::*&#125;;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#569CD6">fn</span><span style="color:#DCDCAA"> main</span><span style="color:#D4D4D4">() -> </span><span style="color:#4EC9B0">Result</span><span style="color:#D4D4D4">&#x3C;()> &#123;</span></span>
+<span class="line"><span style="color:#6A9955">    // Setup model based on YOLOv4 config and weights</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> config</span><span style="color:#D4D4D4"> = </span><span style="color:#CE9178">"yolov4-tiny.cfg"</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> weights</span><span style="color:#D4D4D4"> = </span><span style="color:#CE9178">"yolov4-tiny.weights"</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> net</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">dnn</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">read_net</span><span style="color:#D4D4D4">(</span><span style="color:#9CDCFE">weights</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">config</span><span style="color:#D4D4D4">, </span><span style="color:#CE9178">"Darknet"</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> model</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">dnn</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">DetectionModel</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">new_1</span><span style="color:#D4D4D4">(&#x26;</span><span style="color:#9CDCFE">net</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> scale</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">f64</span><span style="color:#D4D4D4"> = </span><span style="color:#B5CEA8">1.0</span><span style="color:#D4D4D4"> / </span><span style="color:#B5CEA8">255.0</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> size</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Size</span><span style="color:#D4D4D4"> &#123;</span></span>
+<span class="line"><span style="color:#9CDCFE">        width</span><span style="color:#D4D4D4">: </span><span style="color:#B5CEA8">416</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#9CDCFE">        height</span><span style="color:#D4D4D4">: </span><span style="color:#B5CEA8">416</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#D4D4D4">    &#125;;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> mean</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Scalar</span><span style="color:#D4D4D4"> &#123;</span></span>
+<span class="line"><span style="color:#B5CEA8">        0</span><span style="color:#D4D4D4">: [</span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">], </span><span style="color:#6A9955">// Generally for YOLO</span></span>
+<span class="line"><span style="color:#D4D4D4">    &#125;;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> swap_rb</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">bool</span><span style="color:#D4D4D4"> = </span><span style="color:#569CD6">true</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> crop</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">bool</span><span style="color:#D4D4D4"> = </span><span style="color:#569CD6">false</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#9CDCFE">    model</span><span style="color:#D4D4D4">.</span><span style="color:#DCDCAA">set_input_params</span><span style="color:#D4D4D4">(</span><span style="color:#9CDCFE">scale</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">size</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">mean</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">swap_rb</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">crop</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A9955">    // Vecs to store detections</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> class_ids</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Vector</span><span style="color:#D4D4D4">::&#x3C;</span><span style="color:#4EC9B0">i32</span><span style="color:#D4D4D4">>::</span><span style="color:#DCDCAA">new</span><span style="color:#D4D4D4">();</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> confidences</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Vector</span><span style="color:#D4D4D4">::&#x3C;</span><span style="color:#4EC9B0">f32</span><span style="color:#D4D4D4">>::</span><span style="color:#DCDCAA">new</span><span style="color:#D4D4D4">();</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> boxes</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Vector</span><span style="color:#D4D4D4">::&#x3C;</span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Rect</span><span style="color:#D4D4D4">>::</span><span style="color:#DCDCAA">new</span><span style="color:#D4D4D4">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A9955">    // Open img</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> img_file</span><span style="color:#D4D4D4"> = </span><span style="color:#CE9178">"img.jpg"</span><span style="color:#D4D4D4">;</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#569CD6"> mut</span><span style="color:#9CDCFE"> img</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">imgcodecs</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">imread_def</span><span style="color:#D4D4D4">(</span><span style="color:#9CDCFE">img_file</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A9955">    // Perform detections</span></span>
+<span class="line"><span style="color:#9CDCFE">    model</span><span style="color:#D4D4D4">.</span><span style="color:#DCDCAA">detect_def</span><span style="color:#D4D4D4">(&#x26;</span><span style="color:#9CDCFE">img</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#569CD6">mut</span><span style="color:#9CDCFE"> class_ids</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#569CD6">mut</span><span style="color:#9CDCFE"> confidences</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#569CD6">mut</span><span style="color:#9CDCFE"> boxes</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A9955">    // Put bounding boxes on the img</span></span>
+<span class="line"><span style="color:#569CD6">    let</span><span style="color:#9CDCFE"> color</span><span style="color:#D4D4D4"> = </span><span style="color:#4EC9B0">core</span><span style="color:#D4D4D4">::</span><span style="color:#4EC9B0">Scalar</span><span style="color:#D4D4D4"> &#123;</span></span>
+<span class="line"><span style="color:#B5CEA8">        0</span><span style="color:#D4D4D4">: [</span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">140.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">255.0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0.0</span><span style="color:#D4D4D4">], </span><span style="color:#6A9955">// Orange</span></span>
+<span class="line"><span style="color:#D4D4D4">    &#125;;</span></span>
+<span class="line"><span style="color:#C586C0">    for</span><span style="color:#D4D4D4"> (</span><span style="color:#9CDCFE">_cid</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">_cf</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">b</span><span style="color:#D4D4D4">) </span><span style="color:#569CD6">in</span><span style="color:#DCDCAA"> izip!</span><span style="color:#D4D4D4">(&#x26;</span><span style="color:#9CDCFE">class_ids</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#9CDCFE">confidences</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#9CDCFE">boxes</span><span style="color:#D4D4D4">) &#123;</span></span>
+<span class="line"><span style="color:#4EC9B0">        imgproc</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">rectangle_def</span><span style="color:#D4D4D4">(&#x26;</span><span style="color:#569CD6">mut</span><span style="color:#9CDCFE"> img</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">b</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">color</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"><span style="color:#D4D4D4">    &#125;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A9955">    // Display in a GUI window</span></span>
+<span class="line"><span style="color:#4EC9B0">    highgui</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">named_window</span><span style="color:#D4D4D4">(</span><span style="color:#CE9178">"YOLOv4"</span><span style="color:#D4D4D4">, </span><span style="color:#4EC9B0">highgui</span><span style="color:#D4D4D4">::WINDOW_FULLSCREEN)?;</span></span>
+<span class="line"><span style="color:#4EC9B0">    highgui</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">imshow</span><span style="color:#D4D4D4">(</span><span style="color:#CE9178">"YOLOv4"</span><span style="color:#D4D4D4">, &#x26;</span><span style="color:#9CDCFE">img</span><span style="color:#D4D4D4">)?;</span></span>
+<span class="line"><span style="color:#4EC9B0">    highgui</span><span style="color:#D4D4D4">::</span><span style="color:#DCDCAA">wait_key_def</span><span style="color:#D4D4D4">()?;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#4EC9B0">    Ok</span><span style="color:#D4D4D4">(())</span></span>
+<span class="line"><span style="color:#D4D4D4">&#125;</span></span></code><button class="copy" data-code="use anyhow::Result;
+use itertools::izip;
+use opencv::&#123;core, dnn, highgui, imgcodecs, imgproc, prelude::*&#125;;
+
+fn main() -> Result<()> &#123;
+    // Setup model based on YOLOv4 config and weights
+    let config = &#x22;yolov4-tiny.cfg&#x22;;
+    let weights = &#x22;yolov4-tiny.weights&#x22;;
+    let net = dnn::read_net(weights, config, &#x22;Darknet&#x22;)?;
+    let mut model = dnn::DetectionModel::new_1(&#x26;net)?;
+    let scale: f64 = 1.0 / 255.0;
+    let size = core::Size &#123;
+        width: 416,
+        height: 416,
+    &#125;;
+    let mean = core::Scalar &#123;
+        0: [0.0, 0.0, 0.0, 0.0], // Generally for YOLO
+    &#125;;
+    let swap_rb: bool = true;
+    let crop: bool = false;
+    model.set_input_params(scale, size, mean, swap_rb, crop)?;
+
+    // Vecs to store detections
+    let mut class_ids = core::Vector::<i32>::new();
+    let mut confidences = core::Vector::<f32>::new();
+    let mut boxes = core::Vector::<core::Rect>::new();
+
+    // Open img
+    let img_file = &#x22;img.jpg&#x22;;
+    let mut img = imgcodecs::imread_def(img_file)?;
+
+    // Perform detections
+    model.detect_def(&#x26;img, &#x26;mut class_ids, &#x26;mut confidences, &#x26;mut boxes)?;
+
+    // Put bounding boxes on the img
+    let color = core::Scalar &#123;
+        0: [0.0, 140.0, 255.0, 0.0], // Orange
+    &#125;;
+    for (_cid, _cf, b) in izip!(&#x26;class_ids, &#x26;confidences, &#x26;boxes) &#123;
+        imgproc::rectangle_def(&#x26;mut img, b, color)?;
+    &#125;
+
+    // Display in a GUI window
+    highgui::named_window(&#x22;YOLOv4&#x22;, highgui::WINDOW_FULLSCREEN)?;
+    highgui::imshow(&#x22;YOLOv4&#x22;, &#x26;img)?;
+    highgui::wait_key_def()?;
+
+    Ok(())
+&#125;" onclick="
+          navigator.clipboard.writeText(this.dataset.code);
+          this.classList.add(&#x27;copied&#x27;);
+          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 3000)
+        "><span class="ready"></span><span class="success"></span></button></pre><!-- HTML_TAG_END --></div> </article></div></main>   <footer class="svelte-k2ae0s"><p class="svelte-k2ae0s">Borys Tyran © 2024</p> </footer> </div> 
+			
+			<script>
+				{
+					__sveltekit_22yu28 = {
+						base: new URL(".", location).pathname.slice(0, -1)
+					};
+
+					const element = document.currentScript.parentElement;
+
+					const data = [null,null];
+
+					Promise.all([
+						import("./_app/immutable/entry/start.oA2CQoPJ.js"),
+						import("./_app/immutable/entry/app.CSLeeBM_.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 3],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+</body>
+
+</html>
