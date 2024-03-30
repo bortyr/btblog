@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	injectSpeedInsights();
+	import { inject } from '@vercel/analytics'
+	inject();
 	import Footer from './footer.svelte'
 	import Header from './header.svelte'
 	import PageTransition from './transition.svelte'
