@@ -1,4 +1,5 @@
 import { c as create_ssr_component, e as escape, v as validate_component, a as subscribe } from "../../chunks/ssr.js";
+import "../../chunks/client.js";
 import { t as title } from "../../chunks/config.js";
 import { B as BROWSER, w as writable } from "../../chunks/index.js";
 import { I as Icon } from "../../chunks/Icon.js";
