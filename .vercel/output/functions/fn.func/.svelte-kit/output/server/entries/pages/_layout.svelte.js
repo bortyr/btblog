@@ -1,5 +1,6 @@
 import { c as create_ssr_component, e as escape, v as validate_component, a as subscribe } from "../../chunks/ssr.js";
 import "../../chunks/client.js";
+import { inject } from "@vercel/analytics";
 import { t as title } from "../../chunks/config.js";
 import { B as BROWSER, w as writable } from "../../chunks/index.js";
 import { I as Icon } from "../../chunks/Icon.js";
@@ -84,6 +85,7 @@ const css = {
   map: null
 };
 const Layout = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  inject();
   let { data } = $$props;
   if ($$props.data === void 0 && $$bindings.data && data !== void 0)
     $$bindings.data(data);
