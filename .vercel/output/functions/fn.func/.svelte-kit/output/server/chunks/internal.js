@@ -122,7 +122,7 @@ const options = {
   root: Root,
   service_worker: false,
   templates: {
-    app: ({ head, body, assets: assets2, nonce, env }) => '<!doctype html>\n<html lang="en">\n\n<head>\n	<link rel="alternate" type="application/atom+xml" href="/rss.xml" />\n	<meta charset="utf-8" />\n	<link rel="icon" href="' + assets2 + '/favicon.png" />\n	<meta name="viewport" content="width=device-width, initial-scale=1" />\n	' + head + `
+    app: ({ head, body, assets: assets2, nonce, env }) => '<!doctype html>\n<html lang="en">\n\n<head>\n	<!-- <link rel="alternate" type="application/atom+xml" href="/rss.xml" /> -->\n	<meta charset="utf-8" />\n	<link rel="icon" href="' + assets2 + '/favicon.png" />\n	<meta name="viewport" content="width=device-width, initial-scale=1" />\n	' + head + `
 	<script type="module">
 		const theme = localStorage.getItem('color-scheme')
 
@@ -205,7 +205,7 @@ const options = {
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "1xmyrjy"
+  version_hash: "1oi02k"
 };
 async function get_hooks() {
   return {};

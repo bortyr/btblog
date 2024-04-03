@@ -65,7 +65,7 @@ const css$2 = {
 };
 const Header = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   $$result.css.add(css$2);
-  return `<nav class="svelte-scea26"> <a href="/" class="title svelte-scea26"><b>${escape(title)}</b></a>  <ul class="links svelte-scea26" data-svelte-h="svelte-oh7uu5"><li><a href="/about" class="svelte-scea26">About</a></li> <li><a href="/contact" class="svelte-scea26">Contact</a></li> <li><a href="/rss.xml" target="_blank" class="svelte-scea26">RSS</a></li></ul>  ${validate_component(Toggle, "Toggle").$$render($$result, {}, {}, {})} </nav>`;
+  return `<nav class="svelte-scea26"> <a href="/" class="title svelte-scea26"><b>${escape(title)}</b></a>  <ul class="links svelte-scea26" data-svelte-h="svelte-pfxvcu"><li><a href="/about" class="svelte-scea26">About</a></li> <li><a href="/contact" class="svelte-scea26">Contact</a></li> </ul>  ${validate_component(Toggle, "Toggle").$$render($$result, {}, {}, {})} </nav>`;
 });
 const css$1 = {
   code: ".transition.svelte-vcdv4c{height:100%}",
