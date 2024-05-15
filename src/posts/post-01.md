@@ -1,11 +1,6 @@
 ---
 title: YOLOv4 in Rust using OpenCV's Deep Neural Networks
 date: '2024-3-30'
-categories:
-  - Object detection
-  - YOLO
-  - Rust
-  - OpenCV
 published: true
 ---
 
